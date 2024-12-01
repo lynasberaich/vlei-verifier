@@ -16,7 +16,7 @@ LEI2 = "875500ELOZEL05BVXV37"
 
 ECR_ROLE1 = "EBA Data Submitter"
 ECR_ROLE2 = "EBA Data Admin"
-
+ECR_ROLE3 = "EBA Data Reviewer"
 # @pytest.fixture
 # def setup_habs():
 #     with habbing.openHby(name="test", temp=True) as hby, habbing.openHby(

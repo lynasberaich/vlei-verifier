@@ -69,7 +69,7 @@ def test_ecr(seeder):
         issAndCred.extend(eamsgs)
         acdc = issAndCred.decode("utf-8")
         hby.kevers[hab.pre] = hab.kever
-        auth = Authorizer(hby, vdb, eacrdntler.rgy.reger, [LEI1], [ECR_ROLE2])
+        auth = Authorizer(hby, vdb, eacrdntler.rgy.reger, [LEI1], [ECR_ROLE3])
         chain_success, chain_msg = auth.chain_filters(ecr_auth_cred)
         assert chain_success
         assert chain_msg == f"QVI->LE->ECR_AUTH"
@@ -104,6 +104,24 @@ def test_ecr(seeder):
         assert passed_filters
         assert msg == f"Credential passed filters for user {hab.pre} with LEI {LEI1}"
 
+        # Scenario 1: Valid credential with matching role
+        auth = Authorizer(hby, vdb, eccrdntler.rgy.reger, [LEI1], [ECR_ROLE1, ECR_ROLE2, ECR_ROLE3])
+        chain_success, chain_msg = auth.chain_filters(ecr_cred)
+        assert chain_success
+        passed_filters, msg = auth.cred_filters(ecr_cred)
+        assert passed_filters
+        assert msg == f"Credential passed filters for user {hab.pre} with LEI {LEI1}"
+
+        # Scenario 2: Invalid credential with non-matching roles
+        auth = Authorizer(hby, vdb, eccrdntler.rgy.reger, [LEI1], [ECR_ROLE1, ECR_ROLE3])
+        chain_success, chain_msg = auth.chain_filters(ecr_cred)
+        assert chain_success
+        passed_filters, msg = auth.cred_filters(ecr_cred)
+        assert not passed_filters
+        assert msg == f"{ECR_ROLE2} is not a valid submitter role"
+
+        
+        
         data = '"@method": GET\n"@path": /verify/header\n"signify-resource": EHYfRWfM6RxYbzyodJ6SwYytlmCCW2gw5V-FsoX5BgGx\n"signify-timestamp": 2024-05-01T19:54:53.571000+00:00\n"@signature-params: (@method @path signify-resource signify-timestamp);created=1714593293;keyid=BOieebDzg4uaqZ2zuRAX1sTiCrD3pgGT3HtxqSEAo05b;alg=ed25519"'
         raw = data.encode("utf-8")
         cig = hab.sign(ser=raw, indexed=False)[0]
